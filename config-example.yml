@@ -1,4 +1,4 @@
-# NOTE: file has to be renamed to config.yml
+# NOTE: file has to be renamed to config.yml if you want to deploy it
 
 ALLOWED_EXTENSIONS: 
   - json
