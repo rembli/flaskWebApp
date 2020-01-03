@@ -1,5 +1,7 @@
-pymongo==3.8.0
-Flask_Login==0.4.1
+
 Flask==1.0.2
+Flask_Login==0.4.1
 Werkzeug==0.15.5
 PyYAML==5.2
+pymongo==3.8.0
+
