@@ -1,3 +1,5 @@
+# NOTE: file has to be renamed to config.yml
+
 ALLOWED_EXTENSIONS: 
   - json
   - xml
