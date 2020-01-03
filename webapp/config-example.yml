@@ -1,0 +1,18 @@
+ALLOWED_EXTENSIONS: 
+  - json
+  - xml
+  - pdf
+
+DEV_HOSTS:
+  - "DESKTOP-3F5TDPS"
+  - "localhost"
+
+DEV:
+  SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
+  MONGO_DB_URI: "mongodb://localhost:27017"
+
+PRD:
+  SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
+  MONGO_DB_URI: "mongodb://admin:adminpassword@111.22.33.444:27017"
+
+  
