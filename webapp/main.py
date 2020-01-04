@@ -1,5 +1,5 @@
 from flask import Flask, Blueprint, render_template, flash, request, redirect
-from flask_login import login_required, current_user
+from flask_login import login_required
 from werkzeug.utils import secure_filename
 import os
 from . import app, db, ACTIVE_CONFIG
@@ -15,7 +15,6 @@ def index():
 
 # FILE UPLOAD
 #s. https://www.roytuts.com/python-flask-file-upload-example/
-
 
 def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS'] 
@@ -50,12 +49,3 @@ def upload_post():
         flash('Allowed file types are '+str(app.config['ALLOWED_EXTENSIONS'] ))
         return redirect(request.url)
         
-
-
-# USER PROFILE
-
-@main.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', name=current_user.name, email=current_user.email)
-

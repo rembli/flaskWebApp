@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db # get db-object from __init__.py
 from .models import User # get User class from models.py
@@ -32,7 +32,7 @@ def login_post():
     # if the above check passes, then we know the user has provided the right credentials
     user_obj = User(user['email'], db) # load user data from DB and instantiate custom user object
     login_user(user_obj, remember=remember) # provide user object to flask login manager
-    return redirect(url_for('main.profile'))
+    return redirect(url_for('auth.profile'))
 
 # REGISTER-URI
 
@@ -62,6 +62,13 @@ def register_post():
     new_user_obj = db.users.insert_one(new_user)
 
     return redirect(url_for('auth.login'))
+
+# USER PROFILE-URI
+
+@auth.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', name=current_user.name, email=current_user.email)
 
 # LOGOUT-URI
 

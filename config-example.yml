@@ -13,8 +13,21 @@ DEV:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
   MONGO_DB_URI: "mongodb://localhost:27017"
 
+  MAIL_POP: pop.udag.de
+  MAIL_SMTP: smtp.udag.de
+  MAIL_IMAP: imap.udag.de
+  MAIL_DOMAIN: test.com
+  MAIL_USERNAME: info@test.com
+  MAIL_PASSWORD: test123
+
 PRD:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
   MONGO_DB_URI: "mongodb://admin:adminpassword@111.22.33.444:27017"
 
-  
+  MAIL_POP: pop.udag.de
+  MAIL_SMTP: smtp.udag.de
+  MAIL_IMAP: imap.udag.de
+  MAIL_DOMAIN: test.com
+  MAIL_USERNAME: info@test.com
+  MAIL_PASSWORD: test123
+
