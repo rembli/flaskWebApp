@@ -11,7 +11,6 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    print (root_path())
     return render_template('index.html')
 
 
@@ -40,8 +39,7 @@ def upload_post():
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
-        # old: file will be temporarly saved in the folder __filecache__ just beneath this python script main.py
-        # old: filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "__filecache__", filename)
+        # OLD: filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "__filecache__", filename)
         filepath = os.path.join(root_path(), app.config['FILE_UPLOAD_PATH'], filename)
         file.save(filepath)
         
