@@ -12,6 +12,8 @@ DEV_HOSTS:
 DEV:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
   MONGO_DB_URI: "mongodb://localhost:27017"
+  MONGO_DB_NAME: "eic"
+  FILE_UPLOAD_PATH: "Data\\Dev-Data\\webFileVolume"  
 
   MAIL_POP: pop.udag.de
   MAIL_SMTP: smtp.udag.de
@@ -23,6 +25,8 @@ DEV:
 PRD:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
   MONGO_DB_URI: "mongodb://admin:adminpassword@111.22.33.444:27017"
+  MONGO_DB_NAME: "eic"  
+  FILE_UPLOAD_PATH: "Data\\Dev-Data\\webFileVolume"  
 
   MAIL_POP: pop.udag.de
   MAIL_SMTP: smtp.udag.de
