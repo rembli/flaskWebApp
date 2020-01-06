@@ -27,12 +27,14 @@ if host_name in cfg["DEV_HOSTS"]:
 
 app.config['SECRET_KEY'] = cfg[ACTIVE_CONFIG]["SECRET_KEY"]
 app.config['MONGO_DB_URI'] = cfg[ACTIVE_CONFIG]["MONGO_DB_URI"]
+app.config['MONGO_DB_NAME'] = cfg[ACTIVE_CONFIG]["MONGO_DB_NAME"]
+app.config['FILE_UPLOAD_PATH'] = cfg[ACTIVE_CONFIG]["FILE_UPLOAD_PATH"]
 app.config['ALLOWED_EXTENSIONS'] = cfg["ALLOWED_EXTENSIONS"]
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 
 # CONNNECT TO MONGO
 
-db = MongoClient(app.config['MONGO_DB_URI'])["eic"]
+db = MongoClient(app.config['MONGO_DB_URI'])[app.config['MONGO_DB_NAME']]
 
 # INIT FLASK LOGIN MANAGER
 

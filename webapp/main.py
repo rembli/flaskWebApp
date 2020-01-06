@@ -3,6 +3,7 @@ from flask_login import login_required
 from werkzeug.utils import secure_filename
 import os
 from . import app, db, ACTIVE_CONFIG
+from .helper import root_path
 
 main = Blueprint('main', __name__)
 
@@ -10,6 +11,7 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
+    print (root_path())
     return render_template('index.html')
 
 
@@ -37,9 +39,10 @@ def upload_post():
         return redirect(request.url)
 
     if file and allowed_file(file.filename):
-        # file will be temporarly saved in the folder __filecache__ just beneath this python script main.py
         filename = secure_filename(file.filename)
-        filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "__filecache__", filename)
+        # old: file will be temporarly saved in the folder __filecache__ just beneath this python script main.py
+        # old: filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "__filecache__", filename)
+        filepath = os.path.join(root_path(), app.config['FILE_UPLOAD_PATH'], filename)
         file.save(filepath)
         
         flash('File successfully uploaded')
