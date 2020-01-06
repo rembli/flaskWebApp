@@ -28,12 +28,12 @@
 
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
-                            <a href="{{ url_for('main.index') }}" class="navbar-item">
-                                Home
-                            </a>
                             {% if current_user.is_authenticated %}
                             <a href="{{ url_for('main.upload') }}" class="navbar-item">
                                 Upload
+                            </a>
+                            <a href="{{ url_for('main.files') }}" class="navbar-item">
+                                Files
                             </a>
                             <a href="{{ url_for('auth.profile') }}" class="navbar-item">
                                 Profile
@@ -64,6 +64,15 @@
                {% endblock %}
             </div>
         </div>
+  
+        <footer class="footer">
+        <div class="content has-text-centered" style="color:gray">
+            Simple demo web application by <strong><a href="https://www.linkedin.com/in/georg-boegerl-a96453" target="new">Georg Boegerl</a></strong>.<br>
+            Source coude is managed with <strong><a href="https://github.com/rembli/flaskWebAppProject" target="new">Git hub</a></strong>.
+            Styling is powered by <strong><a href="https://bulma.io" target="new">Bulma</a></strong>. 
+            Pictures by Austin Distel and Sharon McCutcheon from <strong><a href="https://unsplash.com" target="new">Unsplash</a></strong>
+        </div>
+        </footer>
 
     </div>
     <script type="text/javascript">

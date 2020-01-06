@@ -1,8 +1,9 @@
-from flask import Flask, Blueprint, render_template, flash, request, redirect
-from flask_login import login_required
+from flask import Flask, Blueprint, render_template, flash, request, redirect, send_file
+from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-import os
+import os, datetime
 from . import app, db, ACTIVE_CONFIG
+from bson.objectid import ObjectId
 from .helper import root_path
 
 main = Blueprint('main', __name__)
@@ -11,7 +12,9 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    return render_template('index.html')
+    num_users = db.users.count_documents({})
+    num_files = db.files.count_documents({})    
+    return render_template('index.html', num_users=num_users, num_files=num_files)
 
 
 # FILE UPLOAD
@@ -38,15 +41,74 @@ def upload_post():
         return redirect(request.url)
 
     if file and allowed_file(file.filename):
+        current_time = datetime.datetime.now() 
+        current_user_id = current_user.get_id()
+
+        # WHOLE FILE UPLOAD SHOULD BE A TRANSACTION
         filename = secure_filename(file.filename)
         # OLD: filepath = os.path.join(os.path.dirname(os.path.realpath(__file__)), "__filecache__", filename)
-        filepath = os.path.join(root_path(), app.config['FILE_UPLOAD_PATH'], filename)
-        file.save(filepath)
-        
-        flash('File successfully uploaded')
+        filepath = os.path.join(root_path(), app.config['FILE_UPLOAD_PATH'], current_user_id)
+        if not os.path.exists(filepath):
+            os.makedirs (filepath)
+        file.save (os.path.join(filepath, filename))
+
+        # query if file exists fpr this user
+        file_exsists = db.files.find_one({"$and":[{"filepath":filepath},{"filename":filename}]})
+        print (file_exsists)
+
+        if not file_exsists: 
+        # file has not been uploaded before
+            new_file = { 
+                "filepath": filepath, 
+                "filename": filename, 
+                "created_on": current_time,
+                "created_by": current_user_id
+            }
+            new_file_obj = db.files.insert_one(new_file)        
+            
+            event_ref = "/files/"+current_user_id+"/"+str(new_file_obj.inserted_id)
+            new_event = { 
+                "event_type": "FILE_CREATED", 
+                "event_ref": event_ref,
+                "created_on": current_time,
+                "created_by": current_user_id
+            }
+            new_event_obj = db.events.insert_one(new_event)  
+            
+            flash("File '"+filename+"' successfully uploaded")
+        else:
+        # file has been alread uploaded before            
+            event_ref = "/files/"+current_user_id+"/"+str(file_exsists.get("_id"))
+            new_event = { 
+                "event_type": "FILE_UPDATED", 
+                "event_ref": event_ref,
+                "created_on": current_time,
+                "created_by": current_user_id
+            }
+            new_event_obj = db.events.insert_one(new_event)              
+            
+            flash("File '"+filename+"' successfully updated")
+
         return render_template('upload.html')
 
     else:
         flash('Allowed file types are '+str(app.config['ALLOWED_EXTENSIONS'] ))
         return redirect(request.url)
         
+
+@main.route('/files')
+@login_required
+def files():
+    files = db.files.find({"created_by": current_user.get_id()})    
+    return render_template('files.html', files=files)
+
+@main.route('/files/<file_id>')
+@login_required
+def files_download(file_id):
+    file = db.files.find_one({"$and":[{"created_by":current_user.get_id()},{"_id": ObjectId(file_id)}]}) 
+    if file:
+        filepath_filename = os.path.join(file["filepath"], file["filename"])
+        return send_file(filepath_filename)
+    else:
+        return "{'error': 'File not found'}", 404 
+
