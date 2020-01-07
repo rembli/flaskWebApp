@@ -56,7 +56,6 @@ def load_user(email):
         return User(u['email'], db)
     else:
         return None
- 
 
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 

@@ -5,6 +5,10 @@ import os, datetime
 from . import app, db, ACTIVE_CONFIG
 from bson.objectid import ObjectId
 from .helper import root_path
+import pymongo
+import re
+import qrcode
+from io import BytesIO
 
 main = Blueprint('main', __name__)
 
@@ -42,7 +46,7 @@ def upload_post():
 
     if file and allowed_file(file.filename):
         current_time = datetime.datetime.now() 
-        current_user_id = current_user.get_id()
+        current_user_id = current_user.get_internal_id()
 
         # WHOLE FILE UPLOAD SHOULD BE A TRANSACTION
         filename = secure_filename(file.filename)
@@ -54,7 +58,6 @@ def upload_post():
 
         # query if file exists fpr this user
         file_exsists = db.files.find_one({"$and":[{"filepath":filepath},{"filename":filename}]})
-        print (file_exsists)
 
         if not file_exsists: 
         # file has not been uploaded before
@@ -64,7 +67,7 @@ def upload_post():
                 "created_on": current_time,
                 "created_by": current_user_id
             }
-            new_file_obj = db.files.insert_one(new_file)        
+            new_file_obj = db.files.insert_one(new_file)    
             
             event_ref = "/files/"+current_user_id+"/"+str(new_file_obj.inserted_id)
             new_event = { 
@@ -77,7 +80,7 @@ def upload_post():
             
             flash("File '"+filename+"' successfully uploaded")
         else:
-        # file has been alread uploaded before            
+        # file has been alread uploaded before      
             event_ref = "/files/"+current_user_id+"/"+str(file_exsists.get("_id"))
             new_event = { 
                 "event_type": "FILE_UPDATED", 
@@ -99,16 +102,35 @@ def upload_post():
 @main.route('/files')
 @login_required
 def files():
-    files = db.files.find({"created_by": current_user.get_id()})    
-    return render_template('files.html', files=files)
+    query_string = request.args.get('query_string')
+    if query_string is None or len(query_string) == 0:
+        files = db.files.find({"created_by": current_user.get_internal_id()}).limit(100).sort([("filename", pymongo.ASCENDING)])
+    else:
+        files = db.files.find(
+            {"$and":[{"created_by": current_user.get_internal_id()},{"filename": {'$regex': re.compile(query_string, re.IGNORECASE)}}]}    
+            ).limit(100).sort([("filename", pymongo.ASCENDING)])
+        
+    return render_template('files.html', files=files, query_string=query_string)
+
 
 @main.route('/files/<file_id>')
-@login_required
 def files_download(file_id):
-    file = db.files.find_one({"$and":[{"created_by":current_user.get_id()},{"_id": ObjectId(file_id)}]}) 
+    file = db.files.find_one({"_id": ObjectId(file_id)}) 
     if file:
         filepath_filename = os.path.join(file["filepath"], file["filename"])
         return send_file(filepath_filename)
     else:
         return "{'error': 'File not found'}", 404 
+
+
+@main.route('/files/<file_id>/qrcode')
+def files_qrcode(file_id):
+    img_io = BytesIO()
+    img = qrcode.make("http://rembli.com/files/"+file_id)
+    print(type(img))
+    print(img.size)
+    
+    img.save(img_io, 'JPEG', quality=70)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
 
