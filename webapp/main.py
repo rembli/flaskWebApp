@@ -127,9 +127,6 @@ def files_download(file_id):
 def files_qrcode(file_id):
     img_io = BytesIO()
     img = qrcode.make("http://rembli.com/files/"+file_id)
-    print(type(img))
-    print(img.size)
-    
     img.save(img_io, 'JPEG', quality=70)
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
