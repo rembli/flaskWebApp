@@ -25,9 +25,9 @@
 <ul>
 {% for file in files %}
   <li>
-    <a href="{{ url_for('main.files_download', file_id=file._id) }}" target="new">{{ file.filename }}</a>
-    <a href="{{ url_for('main.files_download', file_id=file._id) }}" target="new"><i class="fas fa-download"></i></a>
-    <a href="{{ url_for('main.files_qrcode', file_id=file._id) }}" target="new"><i class="fas fa-qrcode"></i></a>
+    <a href="{{ url_for('files.files_download', file_id=file._id) }}" target="new">{{ file.filename }}</a>
+    <a href="{{ url_for('files.files_download', file_id=file._id) }}" target="new"><i class="fas fa-download"></i></a>
+    <a href="{{ url_for('files.files_qrcode', file_id=file._id) }}" target="new"><i class="fas fa-qrcode"></i></a>
   </tr>
 {% endfor %}
 </ul>

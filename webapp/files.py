@@ -9,26 +9,19 @@ import re
 import qrcode
 from io import BytesIO
 
-main = Blueprint('main', __name__)
-
-# HOMEPAGE
-
-@main.route('/')
-def index():
-    num_users = db.users.count_documents({})
-    num_files = db.files.count_documents({})    
-    return render_template('index.html', num_users=num_users, num_files=num_files)
+files_blueprint = Blueprint('files', __name__)
 
 # FILE MANAGEMENT
 from .FileManagement import FileManagement
 fm = FileManagement (current_user, db, app.config)
 
-@main.route('/upload')
+@files_blueprint.route('/upload')
 @login_required
 def upload():
     return render_template('upload.html')
 
-@main.route('/upload', methods=['POST'])
+@files_blueprint.route('/upload', methods=['POST'])
+@login_required
 def upload_post():
     if 'file' not in request.files:
         flash('No file part')
@@ -41,25 +34,28 @@ def upload_post():
         return redirect(request.url)
 
     if file and fm.allowed_file(file.filename):
-        ret = fm.save (file)
+        ret, id = fm.save (file)
+        
         if ret == fm.FILE_CREATED:
             flash("File '"+file.filename+"' successfully uploaded")
         elif ret == fm.FILE_UPDATED:
             flash("File '"+file.filename+"' successfully updated")
+
         return render_template('upload.html')
 
     else:
         flash('Allowed file types are '+str(app.config['ALLOWED_EXTENSIONS'] ))
         return redirect(request.url)
 
-@main.route('/files')
+
+@files_blueprint.route('/files')
 @login_required
 def files():
     query_string = request.args.get('query_string')
     files = fm.query (query_string)
     return render_template('files.html', files=files, query_string=query_string)
 
-@main.route('/files/<file_id>')
+@files_blueprint.route('/files/<file_id>')
 #@login_required
 def files_download(file_id):
 
@@ -70,8 +66,8 @@ def files_download(file_id):
     else:
         return "{'error': 'File not found'}", 404 
 
-@main.route('/files/<file_id>/qrcode')
-#@login_required
+@files_blueprint.route('/files/<file_id>/qrcode')
+@login_required
 def files_qrcode(file_id):
     img_io = fm.qrcode(file_id)
     return send_file(img_io, mimetype='image/jpeg')

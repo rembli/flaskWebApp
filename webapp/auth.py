@@ -2,19 +2,19 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db # get db-object from __init__.py
-from .models import User # get User class from models.py
+from .UserManagement import User # get User class from models.py
 
 # DECLARE FLASK BLUEPRINT
 
-auth = Blueprint('auth', __name__)
+auth_blueprint = Blueprint('auth', __name__)
 
 # LOGIN-URI
 
-@auth.route('/login')
+@auth_blueprint.route('/login')
 def login():
     return render_template('login.html')
 
-@auth.route('/login', methods=['POST'])
+@auth_blueprint.route('/login', methods=['POST'])
 def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
@@ -37,11 +37,11 @@ def login_post():
 
 # REGISTER-URI
 
-@auth.route('/register')
+@auth_blueprint.route('/register')
 def register():
     return render_template('register.html')
 
-@auth.route('/register', methods=['POST'])
+@auth_blueprint.route('/register', methods=['POST'])
 def register_post():
     email = request.form.get('email')
     name = request.form.get('name')
@@ -66,15 +66,15 @@ def register_post():
 
 # USER PROFILE-URI
 
-@auth.route('/profile')
+@auth_blueprint.route('/profile')
 @login_required
 def profile():
     return render_template('profile.html', name=current_user.name, email=current_user.email)
 
 # LOGOUT-URI
 
-@auth.route('/logout')
+@auth_blueprint.route('/logout')
 @login_required
 def logout():
     logout_user() 
-    return redirect(url_for('main.index'))
+    return redirect(url_for('index'))

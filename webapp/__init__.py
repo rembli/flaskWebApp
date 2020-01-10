@@ -1,9 +1,9 @@
 import os, yaml, socket
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_restplus import Api
 from flask_login import LoginManager 
 from pymongo import MongoClient
-from .models import User
+from .UserManagement import User
 
 # INIT FLASK APP
 
@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.after_request
 def add_header(response):
-    response.cache_control.max_age = 300
+    response.cache_control.max_age = 10
     return response
 
 # LOAD CONFIG
@@ -65,23 +65,33 @@ def load_user(email):
     else:
         return None
 
+# HOMEPAGE
+
+@app.route('/')
+def index():
+    num_users = db.users.count_documents({})
+    num_files = db.files.count_documents({})    
+    return render_template('index.html', num_users=num_users, num_files=num_files)
+
+
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 
 # blueprint for auth routes in our app
-from .auth import auth as auth_blueprint
+from .auth import auth_blueprint
 app.register_blueprint(auth_blueprint)
 
 # blueprint for non-auth parts of app
-from .main import main as main_blueprint
-app.register_blueprint(main_blueprint)
+from .files import files_blueprint
+app.register_blueprint(files_blueprint)
 
 # ADD API Extensions with blueprints
 # Import: Dont add API before the other blueprints, otherwise swagger-UI will grap the / base-Uri
 app.config.SWAGGER_UI_DOC_EXPANSION = "list" # alternative: full
 api = Api(app=app)
 
-from .api import blueprint as api_blueprint
+from .api import api_blueprint
 app.register_blueprint(api_blueprint, url_prefix="/api/v1")
+
 
     
 

@@ -2,13 +2,13 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_restplus import Api, Resource, reqparse
 from flask_login import login_user, logout_user, login_required, current_user
 from . import app, db, ACTIVE_CONFIG
-from .models import User
+from .UserManagement import User
 from bson.objectid import ObjectId
 import os
 import werkzeug
 
-blueprint  = Blueprint('api', __name__)
-api = Api(blueprint)
+api_blueprint  = Blueprint('api', __name__)
+api = Api(api_blueprint)
 
 # LOGIN 
 
