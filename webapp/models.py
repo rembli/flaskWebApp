@@ -9,8 +9,9 @@ class User():
 
     def __init__(self, email, db):
         #query user from mongo db with email (as unique identifier)
+        self.db = db
         user_obj = db.users.find_one({"email": email})
-   
+        
         self.email = email
         self.name = user_obj["name"] # set username to name from mongodb-document
         self.id = str(user_obj["_id"])
