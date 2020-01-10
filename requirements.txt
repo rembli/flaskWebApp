@@ -1,8 +1,8 @@
-Flask_Login==0.4.1
-Werkzeug==0.15.5
-Flask==1.0.2
 pymongo==3.8.0
+Flask_Login==0.4.1
 qrcode==6.1
-Pillow==5.3.0
+flask_restplus==0.13.0
+Flask==1.0.2
+Werkzeug==0.15.5
 PyYAML==5.3
 

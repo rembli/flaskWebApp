@@ -19,6 +19,7 @@ def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
+    #next_url = request.form.get('next')
 
     # query email in mongo user collection
     user = db.users.find_one({"email": email})
