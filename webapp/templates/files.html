@@ -10,14 +10,14 @@
   {% if query_string  %}
     <div class="field is-grouped">
       <p class="control is-expanded">
-        <input class="input is-rounded" type="text" value="{{query_string}}" name="query_string" >
+        <input class="input is-rounded" type="text" value="{{q}}" name="query_string" >
       </p>
       <p class="control">
         <a href="/files"><div class="icon is-medium"><i class="fas fa-trash"></i></div></a>
       </p>
     </div>
   {% else %}
-    <input class="input is-rounded" type="text" placeholder="query" name="query_string">
+    <input class="input is-rounded" type="text" placeholder="query" name="q">
   {% endif %}
 </form>
 <br>

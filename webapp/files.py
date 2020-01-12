@@ -8,7 +8,7 @@ import pymongo, re
 import qrcode
 from io import BytesIO
 
-from . import app, db, ACTIVE_CONFIG
+from . import app, db, ACTIVE_CONFIG, accept_json
 
 #############################################################################
 # MODEL
@@ -63,7 +63,7 @@ class FileManagement():
                 "created_on": current_time,
                 "created_by": current_user_id
             }
-            new_event_obj = db.events.insert_one(new_event)  
+            db.events.insert_one(new_event)  
             
             return FileManagement.FILE_CREATED, str(new_file_obj.inserted_id)
         else:
@@ -75,7 +75,7 @@ class FileManagement():
                 "created_on": current_time,
                 "created_by": current_user_id
             }
-            new_event_obj = db.events.insert_one(new_event)           
+            db.events.insert_one(new_event)           
             
             return FileManagement.FILE_UPDATED, str(file_exsists.get("_id"))
             
@@ -87,7 +87,6 @@ class FileManagement():
                 {"$and":[{"created_by": self.current_user.get_internal_id()},{"filename": {'$regex': re.compile(query_string, re.IGNORECASE)}}]}    
                 ).limit(100).sort([("filename", pymongo.ASCENDING)])
         return files
-
 
     def get_filepath (self, file_id):
         file = db.files.find_one({"_id": ObjectId(file_id)}) 
@@ -112,71 +111,90 @@ class FileManagement():
 # API
 #############################################################################
 
-files_blueprint = Blueprint('files', __name__)
-
-# FILE MANAGEMENT
 fm = FileManagement (current_user, db, app.config)
 
-@files_blueprint.route('/upload')
+fbp = Blueprint('files', __name__)
+
+# FILE MANAGEMENT
+
+@fbp.route('/upload')
 @login_required
 def upload():
     return render_template('upload.html')
 
-@files_blueprint.route('/upload', methods=['POST'])
+
+@fbp.route('/upload', methods=['POST'])
 @login_required
 def upload_post():
+    """ uploaded file
+    ---
+    tags:
+        - files management
+    parameters:
+        - in: formData
+          name: file
+          type: file
+    responses:
+         200:
+            description: list of files that match the query
+    """ 
+    msg = None
     if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-
-    file = request.files['file']
-
-    if file.filename == '':
-        flash('No file selected for uploading')
-        return redirect(request.url)
-
-    if file and fm.allowed_file(file.filename):
-        ret, id = fm.save (file)
-        
-        if ret == fm.FILE_CREATED:
-            flash("File '"+file.filename+"' successfully uploaded")
-        elif ret == fm.FILE_UPDATED:
-            flash("File '"+file.filename+"' successfully updated")
-
+        msg = "No file part"
+    else:
+        file = request.files['file']
+        if not file or file.filename == '':
+            msg = "No file selected for uploading"
+        else:
+            if not fm.allowed_file(file.filename):
+                msg = "Allowed file types are " + str(app.config["ALLOWED_EXTENSIONS"])
+            else:
+                ret, id = fm.save (file)
+                if ret == fm.FILE_UPDATED:
+                    msg = "File '"+file.filename+"' successfully updated"
+                else:
+                    msg = "File '"+file.filename+"' successfully uploaded"
+    
+    if accept_json (request):
+        return jsonify({"message": msg })
+    else:
+        if msg:
+            flash(msg)
         return render_template('upload.html')
 
-    else:
-        flash('Allowed file types are '+str(app.config['ALLOWED_EXTENSIONS'] ))
-        return redirect(request.url)
-
-
-@files_blueprint.route('/files')
+@fbp.route('/files')
 @login_required
 def files():
     """ query uploaded files
     ---
+    tags:
+        - files management
     parameters:
-      - name: querystring
+      - name: q
         in: query
         type: string
     responses:
       200:
         description: list of files that match the query
     """    
-    query_string = request.args.get('query_string')
-    files = fm.query (query_string)
+    q = request.args.get('q')
+    files = fm.query (q)
 
     print (request.headers.get("accept"))
-    if request.headers.get("accept") == "application/json":
+
+    if accept_json (request):
         return dumps (files)
     else:
-        return render_template('files.html', files=files, query_string=query_string)
+        return render_template('files.html', files=files, q=q)
 
-@files_blueprint.route('/files/<file_id>')
+
+@fbp.route('/files/<file_id>')
 #@login_required
 def files_download(file_id):
     """ get file
     ---
+    tags:
+        - files management    
     parameters:
       - name: file_id
         in: path
@@ -192,11 +210,14 @@ def files_download(file_id):
     else:
         return "{'error': 'File not found'}", 404 
 
-@files_blueprint.route('/files/<file_id>/qrcode')
+
+@fbp.route('/files/<file_id>/qrcode')
 @login_required
 def files_qrcode(file_id):
     """ get qrcode for file
     ---
+    tags:
+        - files management   
     parameters:
       - name: file_id
         in: path

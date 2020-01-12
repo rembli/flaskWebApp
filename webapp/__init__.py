@@ -16,6 +16,11 @@ def add_header(response):
     response.cache_control.max_age = 10
     return response
 
+# HELPER FUNCTIONS
+
+def accept_json (request):
+    return request.headers.get("accept") == "application/json"
+
 # LOAD CONFIG
 # load the config.yml file
 
@@ -44,8 +49,6 @@ app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 
 db = MongoClient(app.config['MONGO_DB_URI'])[app.config['MONGO_DB_NAME']]
 
-from .auth import User
-
 # INIT FLASK LOGIN MANAGER
 
 login_manager = LoginManager()
@@ -56,6 +59,8 @@ login_manager.init_app(app)
 # - it takes the unicode ID of a user;
 # - it returns the user object;
 # - if the ID is invalid must return None.
+
+from .auth import User
 
 @login_manager.user_loader
 def load_user(email):
@@ -83,11 +88,9 @@ def index():
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 
 # blueprint for auth routes in our app
-from .auth import auth_blueprint
-app.register_blueprint(auth_blueprint)
+from .auth import abp
+app.register_blueprint(abp)
 
 # blueprint for non-auth parts of app
-from .files import files_blueprint
-app.register_blueprint(files_blueprint)
-
-
+from .files import fbp
+app.register_blueprint(fbp)
