@@ -117,6 +117,25 @@ def login_post():
             flash (msg)
         return fun()
 
+# LOGOUT-URI
+
+@abp.route('/logout')
+@login_required
+def logout():
+    """ logout
+    ---
+    tags:
+        - user management     
+    responses:
+         200:
+            description: logout user
+    """ 
+    logout_user()
+    if accept_json(request):
+        return jsonify ({"message":"logout successful"})
+    else:
+        return redirect(url_for('index'))
+
 # REGISTER-URI
 
 @abp.route('/register')
@@ -152,22 +171,3 @@ def register_post():
 @login_required
 def profile():
     return render_template('profile.html', name=current_user.name, email=current_user.email)
-
-# LOGOUT-URI
-
-@abp.route('/logout')
-@login_required
-def logout():
-    """ logout
-    ---
-    tags:
-        - user management     
-    responses:
-         200:
-            description: logout user
-    """ 
-    logout_user()
-    if accept_json(request):
-        return jsonify ({"message":"logout successful"})
-    else:
-        return redirect(url_for('index'))
