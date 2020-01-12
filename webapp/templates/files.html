@@ -7,7 +7,7 @@
 <h2 class="subtitle">view limited to 100 files - query to filter</h2>
 
 <form action="/files" id="query_form">
-  {% if query_string  %}
+  {% if q %}
     <div class="field is-grouped">
       <p class="control is-expanded">
         <input class="input is-rounded" type="text" value="{{q}}" name="query_string" >
