@@ -1,6 +1,5 @@
 import os, yaml, socket
 from flask import Flask, jsonify, request, render_template
-from flask_restplus import Api
 from flask_login import LoginManager 
 from flasgger import Swagger
 from pymongo import MongoClient
@@ -83,7 +82,6 @@ def index():
     num_users = db.users.count_documents({})
     num_files = db.files.count_documents({})    
     return render_template('index.html', num_users=num_users, num_files=num_files)
-
 
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 
