@@ -1,6 +1,42 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+<!-- #################### DIALOGS ######################################### -->
+
+<div class="modal file_delete_dialog">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+      Do you really want to delete the file?<p><br>
+      <button class="button" onClick="javascript:delete_file_confirmed()">Delete</button>
+      <button class="button" onClick="javascript:delete_file_canceled()"><b>Cancel</b></button>
+  </div>
+</div>
+
+<script language="javascript">
+  var current_file_id = 0;
+  var modal = document.querySelector('.file_delete_dialog') // Using a class instead, see note below.
+
+  function delete_file (file_id) {
+    current_file_id = file_id;
+    modal.classList.toggle('is-active');
+  }
+  function delete_file_canceled () {
+    current_file_id = 0;
+    modal.classList.toggle('is-active');
+  }
+  function delete_file_confirmed () {
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+      location.reload(true);
+    };
+    xhr.open ('DELETE', '{{ url_for('files.files_query') }}/'+current_file_id);
+    xhr.send();
+  }  
+</script>
+
+<!-- #################### MAIN CONTENT ######################################### -->
+
 <h1 class="title">
   Your uploaded files 
 </h1>
@@ -27,7 +63,9 @@
   <li>
     <a href="{{ url_for('files.files_download', file_id=file._id) }}" target="new">{{ file.filename }}</a>
     <a href="{{ url_for('files.files_download', file_id=file._id) }}" target="new"><i class="fas fa-download"></i></a>
+    <a href="javascript: delete_file ('{{file._id}}')" target="_self"><i class="fas fa-trash-alt"></i></a>
     <a href="{{ url_for('files.files_qrcode', file_id=file._id) }}" target="new"><i class="fas fa-qrcode"></i></a>
+
   </tr>
 {% endfor %}
 </ul>

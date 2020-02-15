@@ -15,11 +15,13 @@ from . import app, db, ACTIVE_CONFIG, accept_json
 #############################################################################
 
 class FileManagement():
+    FILE_TYPE_NOT_ALLOWED = 0
     FILE_CREATED = 1
     FILE_UPDATED = 2
-    FILE_TYPE_NOT_ALLOWED = 3
-    FILE_NOT_FOUND = 4
-    FILE_EXISTS = 5
+    FILE_DELETED = 3
+    FILE_EXISTS = 4
+    FILE_NOT_FOUND = 5
+
 
     def __init__(self, current_user, db, config):    
         self.current_user = current_user
@@ -94,7 +96,20 @@ class FileManagement():
             filepath_filename = os.path.join(file["filepath"], file["filename"])
             return FileManagement.FILE_EXISTS, filepath_filename
         else:
-            return FileManagement.FILE_NOT_FOUND
+            return FileManagement.FILE_NOT_FOUND, None
+
+    def delete_file (self, file_id):
+        file = db.files.find_one({"$and":[{"_id":ObjectId(file_id)},{"created_by":self.current_user.get_internal_id()}]}) 
+        if file:
+            filepath_filename = os.path.join(file["filepath"], file["filename"])
+            try:
+                db.files.delete_one({"$and":[{"_id":ObjectId(file_id)},{"created_by":self.current_user.get_internal_id()}]}) 
+                os.remove(filepath_filename)
+            except:
+                return FileManagement.FILE_NOT_FOUND    
+            return FileManagement.FILE_DELETED
+        else:
+            return FileManagement.FILE_NOT_FOUND            
 
     def qrcode(self, file_id):
         img_io = BytesIO()
@@ -164,7 +179,7 @@ def upload_post():
 
 @fbp.route('/files')
 @login_required
-def files():
+def files_query():
     """ query uploaded files
     ---
     tags:
@@ -210,6 +225,28 @@ def files_download(file_id):
     else:
         return "{'error': 'File not found'}", 404 
 
+
+@fbp.route('/files/<file_id>', methods=['DELETE'])
+@login_required
+def files_delete(file_id):
+    """ delete file
+    ---
+    tags:
+        - files management    
+    parameters:
+      - name: file_id
+        in: path
+        type: string    
+    responses:
+      200:
+        description: file deleted
+    """
+    ret = fm.delete_file(file_id)
+
+    if ret == fm.FILE_DELETED:
+        return "{'error': 'File deleted'}", 200 
+    else:
+        return "{'error': 'File not found'}", 404 
 
 @fbp.route('/files/<file_id>/qrcode')
 @login_required

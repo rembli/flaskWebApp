@@ -87,12 +87,10 @@ def login_post():
     email = request.form.get('email')
     password = request.form.get('password')
     remember = True if request.form.get('remember') else False
-    #next_url = request.form.get('next')
-
+    
     # query email in mongo user collection
     user = db.users.find_one({"email": email})
 
-    success = False
     msg = None
     fun = None
 
@@ -103,14 +101,12 @@ def login_post():
         fun = lambda: redirect(url_for('auth.login')) # if user doesn't exist or password is wrong, reload the page
     else:
         # if the above check passes, then we know the user has provided the right credentials
-        success = True
         user_obj = User(user['email'], db) # load user data from DB and instantiate custom user object
         login_user(user_obj, remember=remember) # provide user object to flask login manager
+        msg = "login success"
         fun = lambda: redirect(url_for('auth.profile'))
     
     if accept_json (request):
-        if success:
-            msg = "login success"
         return jsonify ({"message": msg})
     else:
         if msg:
