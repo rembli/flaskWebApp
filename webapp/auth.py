@@ -243,19 +243,18 @@ def login_with_DATEV():
     sub = userinfo['sub']
     email = userinfo['email']
     name = userinfo['name']
-    password = rndstr (64)
 
     # check if user already exists
     if not email:
         email = sub + "@datev-login.de"
     user = db.users.find_one({"email": email})
 
-    # if user does not exist, create user profuke
+    # if user does not exist, create user profile
     if not user:
         new_user = { 
             "email": email, 
             "name": name, 
-            "password": generate_password_hash(password, method='sha256')
+            "password": generate_password_hash(rndstr (64), method='sha256')
         }
         db.users.insert_one(new_user)
         user = db.users.find_one({"email": email})
