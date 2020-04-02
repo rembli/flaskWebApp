@@ -240,11 +240,14 @@ def login_with_DATEV():
         } 
     '''
     userinfo = response.json()
+    sub = userinfo['sub']
     email = userinfo['email']
     name = userinfo['name']
     password = rndstr (64)
 
     # check if user already exists
+    if not email:
+        email = sub + "@datev-login.de"
     user = db.users.find_one({"email": email})
 
     # if user does not exist, create user profuke
