@@ -3,10 +3,14 @@ from flask import Flask, jsonify, request, render_template
 from flask_login import LoginManager 
 from flasgger import Swagger
 from pymongo import MongoClient
+import logging
+import contextlib
+import http.client
 
 # INIT FLASK APP
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
 
 # SET CACHE CONTROL
 
@@ -43,12 +47,32 @@ app.config['MONGO_DB_NAME'] = cfg[ACTIVE_CONFIG]["MONGO_DB_NAME"]
 app.config['FILE_UPLOAD_PATH'] = cfg[ACTIVE_CONFIG]["FILE_UPLOAD_PATH"]
 app.config['ALLOWED_EXTENSIONS'] = cfg["ALLOWED_EXTENSIONS"]
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
+app.config['OIDC_CLIENT_ID'] = cfg[ACTIVE_CONFIG]["OIDC_CLIENT_ID"]
+app.config['OIDC_CLIENT_SECRET'] = cfg[ACTIVE_CONFIG]["OIDC_CLIENT_SECRET"]
+
+# CONFIGURE LOGGING
+
+log_path = os.path.join (cwd, "..", "logs", "http.log")
+logging.basicConfig(filename=log_path, level=logging.DEBUG)
+logger = logging.getLogger ()
+
+# ENABLE HTTP LOGGING
+
+httpclient_logger = logging.getLogger("http.client")
+httpclient_logger.setLevel(logging.DEBUG)
+httpclient_logger.propagate = True
+
+def httpclient_log(*args):
+    httpclient_logger.log(logging.DEBUG, " ".join(args))
+
+http.client.print = httpclient_log
+http.client.HTTPConnection.debuglevel = 1
 
 # CONNNECT TO MONGO
 
 db = MongoClient(app.config['MONGO_DB_URI'])[app.config['MONGO_DB_NAME']]
 
-# INIT FLASK LOGIN MANAGER
+# FLASK LOGIN MANAGER
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -92,3 +116,4 @@ app.register_blueprint(abp)
 # blueprint for non-auth parts of app
 from .files import fbp
 app.register_blueprint(fbp)
+

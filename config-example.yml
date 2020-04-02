@@ -22,6 +22,9 @@ DEV:
   MAIL_USERNAME: info@test.com
   MAIL_PASSWORD: test123
 
+  OIDC_CLIENT_ID: ddfdg1
+  OIDC_CLIENT_SECRET: sdfsdf3234
+
 PRD:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
   MONGO_DB_URI: "mongodb://admin:adminpassword@111.22.33.444:27017"
@@ -34,4 +37,8 @@ PRD:
   MAIL_DOMAIN: test.com
   MAIL_USERNAME: info@test.com
   MAIL_PASSWORD: test123
+  
+  OIDC_CLIENT_ID: ddfdg1
+  OIDC_CLIENT_SECRET: sdfsdf3234
+
 
