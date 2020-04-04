@@ -29,6 +29,9 @@
                     <div id="navbarMenuHeroA" class="navbar-menu">
                         <div class="navbar-end">
                             {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('portal') }}" class="navbar-item">
+                                Portal
+                            </a>                            
                             <a href="{{ url_for('files.upload') }}" class="navbar-item">
                                 Upload
                             </a>
@@ -61,7 +64,7 @@
             </nav>
         </div>
 
-        <div class="hero-body">
+        <div class="hero-body" style="align-items: flex-start;">
             <div class="container has-text-centered">
                {% block content %}
                {% endblock %}

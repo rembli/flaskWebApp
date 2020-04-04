@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="columns is-multiline">
+
+<!-- DATEV specific apps-->
+
+{% if is_DATEV_session %}
+
+<div class="column is-one-third">
+<a href="https://developer.datev.de/portal/de/datev-login" target="_blank">
+<div class="box" style="height: 200px">
+    <div class="media-content">
+      <div class="content">
+        <p>
+          <strong>DATEV Developer Portal</strong>
+          <br>
+          The DATEV Developer Portal provide you with different interfaces. Find out which type of interface is the right one for your use case.
+        </p>
+      </div>
+  </div>
+</div>
+</a>
+</div>
+
+{% endif %}
+
+<!-- General purpose apps-->
+
+<div class="column is-one-third">
+<a href="https://gisanddata.maps.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6" target="_blank">
+<div class="box" style="height: 200px">
+    <div class="media-content">
+      <div class="content">
+        <p>
+          <strong>Corona Dashboard</strong>
+          <br>
+          The coronavirus COVID-19 is affecting 205 countries and territories around the world and 2 international conveyances.
+        </p>
+      </div>
+  </div>
+</div>
+</a>
+</div>
+
+<div class="column is-one-third">
+<a href="https://www.spiegel.de/" target="_blank">
+<div class="box" style="height: 200px">
+    <div class="media-content">
+      <div class="content">
+        <p>
+          <strong>Spiegel online</strong>
+          <br>
+          Access news from german magazin Spiegel.
+        </p>
+      </div>
+  </div>
+</div>
+</a>
+</div>
+
+
+</div>
+
+{% endblock %}

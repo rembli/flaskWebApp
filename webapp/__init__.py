@@ -1,5 +1,5 @@
 import os, yaml, socket
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, session
 from flask_login import LoginManager 
 from flasgger import Swagger
 from pymongo import MongoClient
@@ -106,6 +106,15 @@ def index():
     num_users = db.users.count_documents({})
     num_files = db.files.count_documents({})    
     return render_template('index.html', num_users=num_users, num_files=num_files)
+
+@app.route('/portal')
+def portal():
+    is_DATEV_session = False
+    try:
+        is_DATEV_session = session['is_DATEV_session']
+    except:
+        pass
+    return render_template('portal.html', is_DATEV_session = is_DATEV_session)    
 
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 

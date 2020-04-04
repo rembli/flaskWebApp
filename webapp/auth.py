@@ -262,6 +262,7 @@ def login_with_DATEV():
     # login user
     user_obj = User(user['email'], db) # load user data from DB and instantiate custom user object
     login_user(user_obj) # provide user object to flask login manager
+    session["is_DATEV_session"] = True # useful for UI control
  
     return redirect(url_for('auth.profile'))      
 
@@ -280,6 +281,8 @@ def logout():
             description: logout user
     """ 
     logout_user()
+    session['is_DATEV_session'] = False
+    
     if accept_json(request):
         return jsonify ({"message":"logout successful"})
     else:
