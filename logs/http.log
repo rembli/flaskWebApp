@@ -141,3 +141,4 @@ INFO:werkzeug: * Restarting with stat
 WARNING:werkzeug: * Debugger is active!
 INFO:werkzeug: * Debugger PIN: 286-682-760
 INFO:werkzeug: * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__init__.py', reloading
