@@ -110,7 +110,7 @@ def login_post():
         user_obj = User(user['email'], db) # load user data from DB and instantiate custom user object
         login_user(user_obj, remember=remember) # provide user object to flask login manager
         msg = "login success"
-        fun = lambda: redirect(url_for('auth.profile'))
+        fun = lambda: redirect(url_for('portal'))
     
     if accept_json (request):
         return jsonify ({"message": msg})
@@ -264,7 +264,7 @@ def login_with_DATEV():
     login_user(user_obj) # provide user object to flask login manager
     session["is_DATEV_session"] = True # useful for UI control
  
-    return redirect(url_for('auth.profile'))      
+    return redirect(url_for('portal'))      
 
 
 # LOGOUT-URI

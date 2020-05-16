@@ -2,7 +2,7 @@ import os, yaml, socket
 from flask import Flask, jsonify, request, render_template, session
 from flask_login import LoginManager 
 from flasgger import Swagger
-from pymongo import MongoClient
+from flask_pymongo import PyMongo
 import logging
 import contextlib
 import http.client
@@ -42,8 +42,7 @@ if host_name in cfg["DEV_HOSTS"]:
     ACTIVE_CONFIG = "DEV"
 
 app.config['SECRET_KEY'] = cfg[ACTIVE_CONFIG]["SECRET_KEY"]
-app.config['MONGO_DB_URI'] = cfg[ACTIVE_CONFIG]["MONGO_DB_URI"]
-app.config['MONGO_DB_NAME'] = cfg[ACTIVE_CONFIG]["MONGO_DB_NAME"]
+app.config['MONGO_URI'] = cfg[ACTIVE_CONFIG]["MONGO_URI"]
 app.config['FILE_UPLOAD_PATH'] = cfg[ACTIVE_CONFIG]["FILE_UPLOAD_PATH"]
 app.config['ALLOWED_EXTENSIONS'] = cfg["ALLOWED_EXTENSIONS"]
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
@@ -69,8 +68,8 @@ http.client.print = httpclient_log
 http.client.HTTPConnection.debuglevel = 1
 
 # CONNNECT TO MONGO
-
-db = MongoClient(app.config['MONGO_DB_URI'])[app.config['MONGO_DB_NAME']]
+mongo = PyMongo(app)
+db = mongo.db
 
 # FLASK LOGIN MANAGER
 

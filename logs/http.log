@@ -1,0 +1,24 @@
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__init__.py', reloading
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__init__.py', reloading
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__init__.py', reloading
+INFO:werkzeug: * Restarting with windowsapi reloader
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\auth.py', reloading
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\auth.py', reloading
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\auth.py', reloading
+INFO:werkzeug: * Restarting with windowsapi reloader
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__pycache__\\auth.cpython-37.pyc', reloading
+INFO:werkzeug: * Detected change in 'C:\\Data\\Dev\\PythonLab\\FlaskWebAppProject\\webapp\\__pycache__\\auth.cpython-37.pyc', reloading
+INFO:werkzeug: * Restarting with windowsapi reloader
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:36:58] "[37mGET / HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:00] "[32mGET /logout HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:00] "[37mGET / HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:02] "[37mGET /login HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:05] "[32mPOST /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:05] "[37mGET /portal HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:08] "[32mGET /logout HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:08] "[37mGET / HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:09] "[37mGET /login HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:18] "[32mPOST /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:18] "[37mGET /login HTTP/1.1[0m" 200 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:23] "[32mPOST /login HTTP/1.1[0m" 302 -
+INFO:werkzeug:127.0.0.1 - - [16/May/2020 10:37:23] "[37mGET /portal HTTP/1.1[0m" 200 -
