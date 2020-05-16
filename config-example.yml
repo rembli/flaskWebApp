@@ -26,7 +26,7 @@ DEV:
 
 PRD:
   SECRET_KEY: "9OLWxND4o83j4K4iuAAA"
-  MONGO_URI: "mongodb://admin:adminpassword@111.22.33.444:27017/eic"
+  MONGO_URI: "mongodb://admin:adminpassword@111.22.33.444:27017/eic?authSource=admin"
   FILE_UPLOAD_PATH: "Data\\Dev-Data\\webFileVolume"  
 
   MAIL_POP: pop.udag.de
