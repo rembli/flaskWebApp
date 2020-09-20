@@ -1,8 +1,9 @@
 import os, yaml, socket
 from flask import Flask, jsonify, request, render_template, session
-from flask_login import LoginManager 
+from flask_login import LoginManager, login_required, current_user
 from flasgger import Swagger
 from flask_pymongo import PyMongo
+from flask_apscheduler import APScheduler
 import logging
 import contextlib
 import http.client
@@ -12,6 +13,7 @@ import http.client
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
+
 # SET CACHE CONTROL
 
 @app.after_request
@@ -19,10 +21,12 @@ def add_header(response):
     response.cache_control.max_age = 10
     return response
 
+
 # HELPER FUNCTIONS
 
 def accept_json (request):
     return request.headers.get("accept") == "application/json"
+
 
 # LOAD CONFIG
 # load the config.yml file
@@ -48,6 +52,10 @@ app.config['ALLOWED_EXTENSIONS'] = cfg["ALLOWED_EXTENSIONS"]
 app.config['MAX_CONTENT_LENGTH'] = 16*1024*1024
 app.config['OIDC_CLIENT_ID'] = cfg[ACTIVE_CONFIG]["OIDC_CLIENT_ID"]
 app.config['OIDC_CLIENT_SECRET'] = cfg[ACTIVE_CONFIG]["OIDC_CLIENT_SECRET"]
+app.config['MAIL_IMAP'] = cfg[ACTIVE_CONFIG]["MAIL_IMAP"]
+app.config['MAIL_USERNAME'] = cfg[ACTIVE_CONFIG]["MAIL_USERNAME"]
+app.config['MAIL_PASSWORD'] = cfg[ACTIVE_CONFIG]["MAIL_PASSWORD"]
+
 
 # CONFIGURE LOGGING
 
@@ -67,9 +75,11 @@ def httpclient_log(*args):
 http.client.print = httpclient_log
 http.client.HTTPConnection.debuglevel = 1
 
+
 # CONNNECT TO MONGO
 mongo = PyMongo(app)
 db = mongo.db
+
 
 # FLASK LOGIN MANAGER
 
@@ -98,6 +108,7 @@ def load_user(email):
 
 swagger = Swagger(app)
 
+
 # HOMEPAGE
 
 @app.route('/')
@@ -115,6 +126,7 @@ def portal():
         pass
     return render_template('portal.html', is_DATEV_session = is_DATEV_session)    
 
+
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
 
 # blueprint for auth routes in our app
@@ -125,3 +137,20 @@ app.register_blueprint(abp)
 from .files import fbp
 app.register_blueprint(fbp)
 
+
+# ADD BACKGROUND TASK
+
+from .emails import EMailManagement
+EM = EMailManagement (db, app.config)
+
+scheduler = APScheduler()
+
+@scheduler.task('interval', id='check emails', seconds=30, misfire_grace_time=900)
+def job_read_emails():
+    print ("* import emails from inbox")
+    EM.import_mails()
+
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+print ("* Job scheduler started")

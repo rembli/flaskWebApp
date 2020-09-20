@@ -39,6 +39,9 @@ class User():
 
     def get_id(self):
         return self.email
+
+    def get_unique_id(self):
+        return self.id
         
     def get_internal_id(self):
         return self.id
@@ -53,6 +56,10 @@ class User():
     def validate_login(password_hash, password):
         return check_password_hash(password_hash, password)
 
+    @staticmethod
+    def get_email_from_unique_id (db, id):
+        user_obj = db.users.find_one({"_id": id})
+        return str(user_obj["email"])
 
 ####################################################
 # API
@@ -109,7 +116,6 @@ def login_post():
         # if the above check passes, then we know the user has provided the right credentials
         user_obj = User(user['email'], db) # load user data from DB and instantiate custom user object
         login_user(user_obj, remember=remember) # provide user object to flask login manager
-        msg = "login success"
         fun = lambda: redirect(url_for('portal'))
     
     if accept_json (request):
@@ -326,4 +332,4 @@ def register_post():
 def profile():
     # clear all flash messages
     session.pop('_flashes', None)
-    return render_template('profile.html', name=current_user.name, email=current_user.email)
+    return render_template('profile.html', current_user=current_user)

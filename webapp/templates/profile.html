@@ -2,8 +2,11 @@
 
 {% block content %}
 <h1 class="title">
-  Welcome, {{ name }}!
+  Welcome, {{ current_user.name }}!
 </h1>
-{{ email }}
+{{ current_user.email }}<br><br>
+
+You may directly upload files by sending an email to this adress:<br>
+<i class="fa fa-envelope"></i></a> <a href="mailto:{{ current_user.id }}@rembli.com">{{ current_user.id }}@rembli.com</a>
 
 {% endblock %}

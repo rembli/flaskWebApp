@@ -9,6 +9,7 @@ import qrcode
 from io import BytesIO
 
 from . import app, db, ACTIVE_CONFIG, accept_json
+from .auth import User
 
 #############################################################################
 # MODEL
@@ -80,6 +81,45 @@ class FileManagement():
             db.events.insert_one(new_event)           
             
             return FileManagement.FILE_UPDATED, str(file_exsists.get("_id"))
+
+
+    @staticmethod
+    def save_email(db, config, to, filename, smsg):
+
+        current_time = datetime.datetime.now() 
+
+        current_user_id = to.split("@")[0]
+        current_user_email = User.get_email_from_unique_id (db,  ObjectId(current_user_id))
+
+        # save file to disk
+        filename = secure_filename(filename)
+        filepath = os.path.join(FileManagement.root_path(), config['FILE_UPLOAD_PATH'], current_user_id)
+        if not os.path.exists(filepath):
+            os.makedirs (filepath)
+        
+        with open(os.path.join(filepath, filename), 'w', encoding="utf-8") as f:
+            f.write(smsg)
+
+        # save metadata to db
+        new_file = { 
+            "filepath": filepath, 
+            "filename": filename, 
+            "created_on": current_time,
+            "created_by": current_user_id
+        }
+        new_file_obj = db.files.insert_one(new_file)    
+        
+        event_ref = "/files/"+current_user_id+"/"+str(new_file_obj.inserted_id)
+        new_event = { 
+            "event_type": "FILE_CREATED", 
+            "event_ref": event_ref,
+            "created_on": current_time,
+            "created_by": current_user_id
+        }
+        db.events.insert_one(new_event)  
+        
+        return FileManagement.FILE_CREATED, str(new_file_obj.inserted_id)
+
             
     def query (self, query_string):
         if query_string is None or len(query_string) == 0:
@@ -203,9 +243,9 @@ def files_query():
         return render_template('files.html', files=files, q=q)
 
 
-@fbp.route('/files/<file_id>')
+@fbp.route('/files/<file_id>/<file_name>')
 #@login_required
-def files_download(file_id):
+def files_download(file_id, file_name):
     """ get file
     ---
     tags:
@@ -214,6 +254,9 @@ def files_download(file_id):
       - name: file_id
         in: path
         type: string    
+      - name: file_name
+        in: path
+        type: string            
     responses:
       200:
         description: file
