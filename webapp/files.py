@@ -7,8 +7,9 @@ from bson.json_util import dumps
 import pymongo, re
 import qrcode
 from io import BytesIO
+from bson.objectid import ObjectId
 
-from . import app, db, ACTIVE_CONFIG, accept_json
+from . import app, db, ACTIVE_CONFIG, accept_json, logger
 from .auth import User
 
 #############################################################################
@@ -89,36 +90,40 @@ class FileManagement():
         current_time = datetime.datetime.now() 
 
         current_user_id = to.split("@")[0]
-        current_user_email = User.get_email_from_unique_id (db,  ObjectId(current_user_id))
+        current_user_email = User.get_email_from_unique_id (db, current_user_id)
 
-        # save file to disk
-        filename = secure_filename(filename)
-        filepath = os.path.join(FileManagement.root_path(), config['FILE_UPLOAD_PATH'], current_user_id)
-        if not os.path.exists(filepath):
-            os.makedirs (filepath)
-        
-        with open(os.path.join(filepath, filename), 'w', encoding="utf-8") as f:
-            f.write(smsg)
+        if current_user_email is not None:
+            # save file to disk
+            filename = secure_filename(filename)
+            filepath = os.path.join(FileManagement.root_path(), config['FILE_UPLOAD_PATH'], current_user_id)
+            if not os.path.exists(filepath):
+                os.makedirs (filepath)
+            
+            with open(os.path.join(filepath, filename), 'w', encoding="utf-8") as f:
+                f.write(smsg)
 
-        # save metadata to db
-        new_file = { 
-            "filepath": filepath, 
-            "filename": filename, 
-            "created_on": current_time,
-            "created_by": current_user_id
-        }
-        new_file_obj = db.files.insert_one(new_file)    
-        
-        event_ref = "/files/"+current_user_id+"/"+str(new_file_obj.inserted_id)
-        new_event = { 
-            "event_type": "FILE_CREATED", 
-            "event_ref": event_ref,
-            "created_on": current_time,
-            "created_by": current_user_id
-        }
-        db.events.insert_one(new_event)  
-        
-        return FileManagement.FILE_CREATED, str(new_file_obj.inserted_id)
+            # save metadata to db
+            new_file = { 
+                "filepath": filepath, 
+                "filename": filename, 
+                "created_on": current_time,
+                "created_by": current_user_id
+            }
+            new_file_obj = db.files.insert_one(new_file)    
+            
+            event_ref = "/files/"+current_user_id+"/"+str(new_file_obj.inserted_id)
+            new_event = { 
+                "event_type": "FILE_CREATED", 
+                "event_ref": event_ref,
+                "created_on": current_time,
+                "created_by": current_user_id
+            }
+            db.events.insert_one(new_event)  
+            
+            return FileManagement.FILE_CREATED, str(new_file_obj.inserted_id)
+        else:
+            logger.info ("user %s not found" %current_user_id)
+            return None
 
             
     def query (self, query_string):

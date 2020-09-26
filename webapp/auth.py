@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash,
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from bson.objectid import ObjectId
+from bson.errors import InvalidId
 import base64, re, hashlib, os, urllib, requests, json, jwt
 import string
 from secrets import choice
@@ -58,8 +59,16 @@ class User():
 
     @staticmethod
     def get_email_from_unique_id (db, id):
-        user_obj = db.users.find_one({"_id": id})
-        return str(user_obj["email"])
+        try:
+            user_obj = db.users.find_one({"_id": ObjectId(id)})
+            if user_obj is not None:
+                return str(user_obj["email"])
+            else:
+                logger.info ("userid %s not found in DB" %id)
+                return None
+        except:
+            logger.info ("userid %s not valid" %id)
+            return None
 
 ####################################################
 # API

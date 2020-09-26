@@ -7,7 +7,6 @@ import imaplib
 import email
 from email.header import decode_header
 
-from bson.objectid import ObjectId
 from tempfile import TemporaryFile
 import os
 import sys
@@ -25,9 +24,11 @@ class EMailManagement ():
     
     def import_mails(self):
 
-        # login to email bix
+        # login to email box
         M = imaplib.IMAP4_SSL(self.config['MAIL_IMAP'])
         M.login(self.config['MAIL_USERNAME'], self.config['MAIL_PASSWORD'])
+        
+        # select default INBOX (not any particular email folder)
         M.select()
 
         # get all emails
@@ -54,7 +55,7 @@ class EMailManagement ():
             with open(filename, 'w', encoding="utf-8") as f:
                 f.write(smsg)
             '''
-            
+
             # set email to deleted
             M.uid('STORE', msg_uid, '+FLAGS', '\\Deleted')            
 

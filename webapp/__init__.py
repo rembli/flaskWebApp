@@ -8,11 +8,13 @@ import logging
 import contextlib
 import http.client
 
+
+#####################################################
 # INIT FLASK APP
+#####################################################
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
 
 # SET CACHE CONTROL
 
@@ -21,14 +23,16 @@ def add_header(response):
     response.cache_control.max_age = 10
     return response
 
-
 # HELPER FUNCTIONS
 
 def accept_json (request):
     return request.headers.get("accept") == "application/json"
 
 
-# LOAD CONFIG
+#####################################################
+# LOAD CONFIG DEV/PRD
+#####################################################
+
 # load the config.yml file
 
 cwd = os.path.dirname(os.path.realpath(__file__))
@@ -57,6 +61,10 @@ app.config['MAIL_USERNAME'] = cfg[ACTIVE_CONFIG]["MAIL_USERNAME"]
 app.config['MAIL_PASSWORD'] = cfg[ACTIVE_CONFIG]["MAIL_PASSWORD"]
 
 
+#####################################################
+# LOGGING
+#####################################################
+
 # CONFIGURE LOGGING
 
 log_path = os.path.join (cwd, "..", "logs", "http.log")
@@ -76,12 +84,18 @@ http.client.print = httpclient_log
 http.client.HTTPConnection.debuglevel = 1
 
 
+#####################################################
+# DB CONNECTIVITY
+#####################################################
+
 # CONNNECT TO MONGO
 mongo = PyMongo(app)
 db = mongo.db
 
 
-# FLASK LOGIN MANAGER
+#####################################################
+# USER LOGIN MANAGEMENT
+#####################################################
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -104,12 +118,17 @@ def load_user(email):
     else:
         return None
 
-# ADD SWAGGER
+
+#####################################################
+# SWAGGER UU
+#####################################################
 
 swagger = Swagger(app)
 
 
+#####################################################
 # HOMEPAGE
+#####################################################
 
 @app.route('/')
 def index():
@@ -127,7 +146,9 @@ def portal():
     return render_template('portal.html', is_DATEV_session = is_DATEV_session)    
 
 
+######################################################
 # INCLUDE BLUEPRINTS FOR DIFFERENT PARTS OF THE APP
+######################################################
 
 # blueprint for auth routes in our app
 from .auth import abp
@@ -138,7 +159,9 @@ from .files import fbp
 app.register_blueprint(fbp)
 
 
+######################################################
 # ADD BACKGROUND TASK
+######################################################
 
 from .emails import EMailManagement
 EM = EMailManagement (db, app.config)
@@ -147,10 +170,10 @@ scheduler = APScheduler()
 
 @scheduler.task('interval', id='check emails', seconds=30, misfire_grace_time=900)
 def job_read_emails():
-    print ("* import emails from inbox")
+    logger.info("* import emails from inbox")
     EM.import_mails()
 
 scheduler.api_enabled = True
 scheduler.init_app(app)
 scheduler.start()
-print ("* Job scheduler started")
+logger.info("* Job scheduler started")
